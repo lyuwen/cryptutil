@@ -16,16 +16,28 @@ iv = info["iv"]
 key = info["key"]
 data = info["data"]
 
+
+def _process_key_and_iv(key, iv):
+  if not isinstance(key, (bytes, bytearray)):
+    key = key.encode("utf-8")
+  if not isinstance(iv, (bytes, bytearray)):
+    iv = iv.encode("utf-8")
+  return key, iv
+
+
 #CBC with Fix IV
-def encrypt(data,key,iv):
+def encrypt(data, key, iv):
+  key, iv = _process_key_and_iv(key, iv)
   data= pad(data.encode(),16)
   cipher = AES.new(key, AES.MODE_CBC, iv)
-  return base64.b64encode(cipher.encrypt(data))
+  return base64.b64encode(cipher.encrypt(data)).decode("utf-8", "ignore")
 
-def decrypt(enc,key,iv):
+
+def decrypt(enc, key, iv):
+  key, iv = _process_key_and_iv(key, iv)
   enc = base64.b64decode(enc)
   cipher = AES.new(key, AES.MODE_CBC, iv)
-  return unpad(cipher.decrypt(enc),16)
+  return unpad(cipher.decrypt(enc),16).decode("utf-8", "ignore")
 
 
 if __name__ == "__main__":
@@ -41,15 +53,15 @@ if __name__ == "__main__":
   args = parser.parse_args()
 
   data = args.data or data
-  iv = (args.iv or iv).encode("utf-8")
-  key = (args.key or key).encode("utf-8")
+  iv = args.iv or iv
+  key = args.key or key
 
   for k, v in O.items():
     data = data.replace(k, v)
 
   if args.mode == "encrypt":
     encrypted = encrypt(data,key,iv)
-    print('encrypted CBC base64 : ',encrypted.decode("utf-8", "ignore"))
+    print('encrypted CBC base64 : ',encrypted)
   else:
     decrypted = decrypt(data, key, iv)
-    print('data: ', decrypted.decode("utf-8", "ignore"))
+    print('data: ', decrypted)
