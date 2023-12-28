@@ -1,7 +1,6 @@
 import os
 import json
 import base64
-import argparse
 from Crypto.Cipher import AES
 from Crypto.Util.Padding import pad,unpad
 
@@ -41,6 +40,7 @@ def decrypt(enc, key, iv):
 
 
 if __name__ == "__main__":
+  import argparse
   parser = argparse.ArgumentParser()
   mode_group = parser.add_mutually_exclusive_group()
   mode_group.add_argument("--mode", type=str, default="decrypt", choices=["decrypt", "encrypt"], help="AES mode.")
